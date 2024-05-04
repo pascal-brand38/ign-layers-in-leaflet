@@ -21,6 +21,28 @@ async function fetchCapabilities()  {
   return jObj
 }
 
+function LayerList({layers, setSelectedLayer, /* setHoverTrack */}) {
+  return (
+    <div>
+    {
+      layers.map((layer, index) => {
+        return (
+          <div>
+            <button key={index} onClick={()=>setSelectedLayer(layer)} /* onMouseOver={()=>setHoverTrack(index)}*/>
+              { layer['ows:Identifier'] }
+            </button>
+          </div>
+        )
+      })
+    }
+    </div>
+  )
+}
+
+function layerOf(layers, identifier) {
+  const index = layers.findIndex(l => l['ows:Identifier']===identifier)
+  return layers[index]
+}
 
 function App() {
   // from https://stackoverflow.com/questions/64665827/react-leaflet-center-attribute-does-not-change-when-the-center-state-changes
@@ -32,19 +54,34 @@ function App() {
   //   return null;
   // }
 
+  const [ layers, setLayers ] = useState([])    // all the layers. Loaded in useEffect
+  const [ selectedLayer, setSelectedLayer ] = useState(undefined)
+
   useEffect(() => {
     const asyncFunc = async () => {
-      const tracks = await fetchCapabilities()
+      const capabilities = await fetchCapabilities()
+      setLayers(capabilities.Capabilities.Contents.Layer)
+      setSelectedLayer(layerOf(capabilities.Capabilities.Contents.Layer, 'ORTHOIMAGERY.ORTHOPHOTOS'))
     }
 
     asyncFunc();
   }, [])
 
-  const center = [ 46.3428331, 2.5667412 ]
 
-  if (center.length === 0) {
+  if (layers.length === 0) {
     return <></>
   }
+
+  const center = [ 46.3428331, 2.5667412 ]
+  const urlMap = "https://data.geopf.fr/wmts?" +
+    "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
+    "&STYLE=" + selectedLayer.Style['ows:Identifier'] +
+    "&TILEMATRIXSET=" + selectedLayer.TileMatrixSetLink.TileMatrixSet +
+    "&FORMAT=" + selectedLayer.Format +
+    "&LAYER=" + selectedLayer['ows:Identifier'] +
+    "&TILEMATRIX={z}" +
+    "&TILEROW={y}" +
+    "&TILECOL={x}"
 
   const url = {
     // https://geoservices.ign.fr/documentation/services/services-deprecies/affichage-wmts/leaflet-et-wmts
@@ -79,7 +116,7 @@ function App() {
         {/* <ChangeView center={center} zoom={9} /> */}
         <TileLayer
           attribution={attribution}
-          url={url.ignSat}
+          url={urlMap}
 
           // url="https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
           // subdomains={['mt1','mt2','mt3']}
@@ -88,7 +125,9 @@ function App() {
 
       </MapContainer>
 
-      <div className="track-list">
+      <div className="layer-list">
+        <LayerList layers={layers} setSelectedLayer={setSelectedLayer}/>
+
       </div>
     </div>
     </>
