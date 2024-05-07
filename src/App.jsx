@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
-import { MapContainer, TileLayer, Polyline, Marker, Popup, Tooltip, useMapEvents, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, LayersControl, LayerGroup, Circle, Polyline, Marker, Popup, Tooltip, useMapEvents, useMap } from 'react-leaflet'
 // import 'leaflet/dist/leaflet.css';
 //import fs from 'fs'
 import "leaflet/dist/leaflet.css";
@@ -52,19 +52,24 @@ function LayerList({layers, setSelectedLayer, searchTerm}) {
 }
 
 function LayerInfo({selectedLayer}) {
-  return (
-    <>
-      <div>
-        {getUrl(selectedLayer)}
-      </div>
-      <div>
-        { JSON.stringify(selectedLayer) }
-      </div>
-    </>
-  )
+  if (selectedLayer) {
+    return (
+      <>
+        <div>
+          {getUrl(selectedLayer)}
+        </div>
+        <div>
+          { JSON.stringify(selectedLayer) }
+        </div>
+      </>
+    )
+  }
 }
 
 function getUrl(selectedLayer) {
+  if (selectedLayer === undefined) {
+    return undefined
+  }
   return "https://data.geopf.fr/wmts?" +
     "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
     "&STYLE=" + selectedLayer.Style['ows:Identifier'] +
@@ -105,13 +110,13 @@ function App() {
 
   const [ layers, setLayers ] = useState([])    // all the layers. Loaded in useEffect
   const [ selectedLayer, setSelectedLayer ] = useState(undefined)
-  const [searchTerm, setSearchTerm] = useState('');
+  const [ searchTerm, setSearchTerm ] = useState('');
 
   useEffect(() => {
     const asyncFunc = async () => {
       const capabilities = await fetchCapabilities()
       setLayers(capabilities.Capabilities.Contents.Layer)
-      setSelectedLayer(layerOf(capabilities.Capabilities.Contents.Layer, 'ORTHOIMAGERY.ORTHOPHOTOS'))
+      // setSelectedLayer(layerOf(capabilities.Capabilities.Contents.Layer, 'ORTHOIMAGERY.ORTHOPHOTOS'))
     }
 
     asyncFunc();
@@ -124,7 +129,6 @@ function App() {
 
   const center = [ 46.3428331, 2.5667412 ]
   const urlMap = getUrl(selectedLayer)
-  const urlAdmin = "https://data.geopf.fr/wmts?&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/png&LAYER=ADMINEXPRESS-COG.LATEST&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}"
 
 
   const url = {
@@ -151,39 +155,52 @@ function App() {
       "&TILEROW={y}" +
       "&TILECOL={x}",
 
+    ignAdministration: "https://data.geopf.fr/wmts?" +
+      "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
+      "&STYLE=normal" +
+      "&TILEMATRIXSET=PM" +
+      "&FORMAT=image/png" +
+      "&LAYER=ADMINEXPRESS-COG.LATEST" +
+      "&TILEMATRIX={z}" +
+      "&TILEROW={y}" +
+      "&TILECOL={x}",
+
     openstreetmap: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
   }
   return (
     <>
     <div className="main-grid">
       <MapContainer style={{height: "100vh", width: "100%"}} center={center}  zoom={6} scrollWheelZoom={true}  >
-        {/* <ChangeView center={center} zoom={9} /> */}
-        <TileLayer
-          attribution={attribution}
-          url={url.ignSat}
 
-          // url="https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
-          // subdomains={['mt1','mt2','mt3']}
+      <LayersControl position="bottomleft">
+      <LayersControl.Overlay checked name="Image satellite">
+          <TileLayer
+              attribution={attribution}
+              url={url.ignSat}
+          />
+        </LayersControl.Overlay>
+        <LayersControl.Overlay checked name="Administration">
+          <TileLayer
+              attribution={attribution}
+              url={url.ignAdministration}
+          />
+        </LayersControl.Overlay>
+        <LayersControl.Overlay name="Carte Ign">
+          <TileLayer
+              attribution={attribution}
+              url={url.ignPlan}
+          />
+        </LayersControl.Overlay>
+        <LayersControl.Overlay checked name="Selection">
+          { (urlMap !== undefined) &&
+              <TileLayer
+                  attribution={attribution}
+                  url={urlMap}
+              />
+          }
+        </LayersControl.Overlay>
+      </LayersControl>
 
-        />
-
-        <TileLayer
-          attribution={attribution}
-          url={urlMap}
-
-          // url="https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
-          // subdomains={['mt1','mt2','mt3']}
-
-        />
-
-        <TileLayer
-          attribution={attribution}
-          url={urlAdmin}
-
-          // url="https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
-          // subdomains={['mt1','mt2','mt3']}
-
-        />
 
       </MapContainer>
 
