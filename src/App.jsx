@@ -21,28 +21,77 @@ async function fetchCapabilities()  {
   return jObj
 }
 
-function LayerList({layers, setSelectedLayer, /* setHoverTrack */}) {
+function LayerList({layers, setSelectedLayer, searchTerm}) {
+  const term = searchTerm
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")     // remove accent that may be confused
+    .toLowerCase()
+
+  const inSearch = (layer, term) =>
+    layer['ows:Title'].replace(/[\u0300-\u036f]/g, "").toLowerCase().includes(term)
+    || layer['ows:Abstract'].replace(/[\u0300-\u036f]/g, "").toLowerCase().includes(term)
+    || layer['ows:Identifier'].replace(/[\u0300-\u036f]/g, "").toLowerCase().includes(term)
+
+
   return (
     <div>
     {
       layers.map((layer, index) => {
-        return (
-          <div>
-            <button key={index} onClick={()=>setSelectedLayer(layer)} /* onMouseOver={()=>setHoverTrack(index)}*/>
-              { layer['ows:Identifier'] }
-            </button>
-          </div>
-        )
+        if (inSearch(layer, term)) {
+          return (
+            <div>
+              <button key={index} onClick={()=>setSelectedLayer(layer)} /* onMouseOver={()=>setHoverTrack(index)}*/>
+                { layer['ows:Identifier'] }
+              </button>
+            </div>
+          )
+        }
       })
     }
     </div>
   )
 }
 
+function LayerInfo({selectedLayer}) {
+  return (
+    <>
+      <div>
+        {getUrl(selectedLayer)}
+      </div>
+      <div>
+        { JSON.stringify(selectedLayer) }
+      </div>
+    </>
+  )
+}
+
+function getUrl(selectedLayer) {
+  return "https://data.geopf.fr/wmts?" +
+    "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
+    "&STYLE=" + selectedLayer.Style['ows:Identifier'] +
+    "&TILEMATRIXSET=" + selectedLayer.TileMatrixSetLink.TileMatrixSet +
+    "&FORMAT=" + selectedLayer.Format +
+    "&LAYER=" + selectedLayer['ows:Identifier'] +
+    "&TILEMATRIX={z}" +
+    "&TILEROW={y}" +
+    "&TILECOL={x}"
+}
+
 function layerOf(layers, identifier) {
   const index = layers.findIndex(l => l['ows:Identifier']===identifier)
   return layers[index]
 }
+
+function SearchBar({searchTerm, setSearchTerm}) {
+  const handleChange = (event) => {
+    setSearchTerm(event.target.value);
+  }
+
+
+  return (
+      <input type="text" value={searchTerm} onChange={handleChange} />
+  );
+}
+
 
 function App() {
   // from https://stackoverflow.com/questions/64665827/react-leaflet-center-attribute-does-not-change-when-the-center-state-changes
@@ -56,6 +105,7 @@ function App() {
 
   const [ layers, setLayers ] = useState([])    // all the layers. Loaded in useEffect
   const [ selectedLayer, setSelectedLayer ] = useState(undefined)
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const asyncFunc = async () => {
@@ -73,15 +123,9 @@ function App() {
   }
 
   const center = [ 46.3428331, 2.5667412 ]
-  const urlMap = "https://data.geopf.fr/wmts?" +
-    "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
-    "&STYLE=" + selectedLayer.Style['ows:Identifier'] +
-    "&TILEMATRIXSET=" + selectedLayer.TileMatrixSetLink.TileMatrixSet +
-    "&FORMAT=" + selectedLayer.Format +
-    "&LAYER=" + selectedLayer['ows:Identifier'] +
-    "&TILEMATRIX={z}" +
-    "&TILEROW={y}" +
-    "&TILECOL={x}"
+  const urlMap = getUrl(selectedLayer)
+  const urlAdmin = "https://data.geopf.fr/wmts?&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/png&LAYER=ADMINEXPRESS-COG.LATEST&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}"
+
 
   const url = {
     // https://geoservices.ign.fr/documentation/services/services-deprecies/affichage-wmts/leaflet-et-wmts
@@ -116,7 +160,25 @@ function App() {
         {/* <ChangeView center={center} zoom={9} /> */}
         <TileLayer
           attribution={attribution}
+          url={url.ignSat}
+
+          // url="https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
+          // subdomains={['mt1','mt2','mt3']}
+
+        />
+
+        <TileLayer
+          attribution={attribution}
           url={urlMap}
+
+          // url="https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
+          // subdomains={['mt1','mt2','mt3']}
+
+        />
+
+        <TileLayer
+          attribution={attribution}
+          url={urlAdmin}
 
           // url="https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
           // subdomains={['mt1','mt2','mt3']}
@@ -125,10 +187,16 @@ function App() {
 
       </MapContainer>
 
-      <div className="layer-list">
-        <LayerList layers={layers} setSelectedLayer={setSelectedLayer}/>
-
+      <div>
+        <div className="layer-list">
+          <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+          <LayerList layers={layers} setSelectedLayer={setSelectedLayer} searchTerm={searchTerm} />
+        </div>
+        <div className="layer-list">
+          <LayerInfo selectedLayer={selectedLayer} />
+        </div>
       </div>
+
     </div>
     </>
   )
@@ -136,3 +204,11 @@ function App() {
 }
 
 export default App
+
+
+// TODOS
+//
+// - show legends, as for example
+//   https://www.geoportail.gouv.fr/depot/layers/LANDUSE.AGRICULTURE2014/legendes/LANDUSE.AGRICULTURE2014-legend.png
+// - search box with better shape
+// - print information in better format
