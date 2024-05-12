@@ -204,43 +204,61 @@ function App() {
   return (
     <>
     <div className="main-grid">
-      <MapContainer whenReady={whenReadyHandler} style={{height: "100vh", width: "100%"}} center={center}  zoom={6} scrollWheelZoom={true}  >
+      <div className="cell-map">
+        <MapContainer whenReady={whenReadyHandler} style={{height: "100%", width: "100%"}} center={center}  zoom={6} scrollWheelZoom={true}  >
 
-      <LayersControl position="bottomleft">
-        <LayersControl.BaseLayer checked name="Image satellite">
-          <TileLayer
-                attribution={attribution}
-                url={url.ignSat}
-            />
-        </LayersControl.BaseLayer>
-        <LayersControl.BaseLayer name="Carte Ign">
-          <TileLayer
-              attribution={attribution}
-              url={url.ignPlan}
-          />
-        </LayersControl.BaseLayer>
-
-
-        <LayersControl.Overlay checked name="Limite Administrative">
-          <TileLayer
-              attribution={attribution}
-              url={url.ignAdministration}
-          />
-        </LayersControl.Overlay>
-        <LayersControl.Overlay checked name="Selection">
-          { (urlMap !== undefined) &&
-              <TileLayer
+        <LayersControl position="bottomleft">
+          <LayersControl.BaseLayer checked name="Image satellite">
+            <TileLayer
                   attribution={attribution}
-                  url={urlMap}
+                  url={url.ignSat}
               />
-          }
-        </LayersControl.Overlay>
-      </LayersControl>
+          </LayersControl.BaseLayer>
+          <LayersControl.BaseLayer name="Carte Ign">
+            <TileLayer
+                attribution={attribution}
+                url={url.ignPlan}
+            />
+          </LayersControl.BaseLayer>
 
 
-      </MapContainer>
+          <LayersControl.Overlay checked name="Limite Administrative">
+            <TileLayer
+                attribution={attribution}
+                url={url.ignAdministration}
+            />
+          </LayersControl.Overlay>
+          <LayersControl.Overlay checked name="Selection">
+            { (urlMap !== undefined) &&
+                <TileLayer
+                    attribution={attribution}
+                    url={urlMap}
+                />
+            }
+          </LayersControl.Overlay>
+        </LayersControl>
 
-      <div>
+
+        </MapContainer>
+      </div>
+
+      <div className='cell-search'>
+        <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      </div>
+
+      <div className='cell-layers'>
+        <LayerList layers={layers} setSelectedLayer={setSelectedLayer} searchTerm={searchTerm} />
+      </div>
+
+      <div className='cell-code'>
+      className='cell-code'
+      </div>
+
+      <div className='cell-layer-description'>
+        <LayerInfo selectedLayer={selectedLayer} />
+      </div>
+
+      {/* <div>
         <div className="layer-list">
           <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           <LayerList layers={layers} setSelectedLayer={setSelectedLayer} searchTerm={searchTerm} />
@@ -249,7 +267,7 @@ function App() {
           <LayerInfo selectedLayer={selectedLayer} />
         </div>
       </div>
-
+ */}
     </div>
     </>
   )
