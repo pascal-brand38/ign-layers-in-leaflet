@@ -167,28 +167,64 @@ function App() {
 
     openstreetmap: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
   }
+
+  const baseLayerChange = event => {
+    console.log('baseLayerChange event', event);
+  }
+  const overlayChange = event => {
+    console.log('overlayChange event', event);
+  }
+
+  const consoleUrl = (layers) => {
+    console.log('---------------------------------')
+    Object.keys(layers).forEach(key => console.log(layers[key]._url))
+    console.log('---------------------------------')
+  }
+
+
+
+  const whenReadyHandler = event => {
+    // cf events at https://leafletjs.com/reference.html#map-event
+    const { target } = event;
+    //target.on('baselayerchange', baseLayerChange);
+    // target.on('layeradd', overlayChange);
+    target.on('layeradd', (event) => consoleUrl( event.target._layers));
+    target.on('baselayerchange', (event) => consoleUrl( event.target._layers));
+    target.on('overlayadd', (event) => consoleUrl( event.target._layers));
+    target.on('overlayremove', (event) => consoleUrl( event.target._layers));
+
+    // event.target._layers ==> all keys which are int
+
+    // console.log('PASCAL')
+    // console.log(event)
+    // console.log('END PASCAL')
+  }
+
+
   return (
     <>
     <div className="main-grid">
-      <MapContainer style={{height: "100vh", width: "100%"}} center={center}  zoom={6} scrollWheelZoom={true}  >
+      <MapContainer whenReady={whenReadyHandler} style={{height: "100vh", width: "100%"}} center={center}  zoom={6} scrollWheelZoom={true}  >
 
       <LayersControl position="bottomleft">
-      <LayersControl.Overlay checked name="Image satellite">
+        <LayersControl.BaseLayer checked name="Image satellite">
           <TileLayer
-              attribution={attribution}
-              url={url.ignSat}
-          />
-        </LayersControl.Overlay>
-        <LayersControl.Overlay checked name="Administration">
-          <TileLayer
-              attribution={attribution}
-              url={url.ignAdministration}
-          />
-        </LayersControl.Overlay>
-        <LayersControl.Overlay name="Carte Ign">
+                attribution={attribution}
+                url={url.ignSat}
+            />
+        </LayersControl.BaseLayer>
+        <LayersControl.BaseLayer name="Carte Ign">
           <TileLayer
               attribution={attribution}
               url={url.ignPlan}
+          />
+        </LayersControl.BaseLayer>
+
+
+        <LayersControl.Overlay checked name="Limite Administrative">
+          <TileLayer
+              attribution={attribution}
+              url={url.ignAdministration}
           />
         </LayersControl.Overlay>
         <LayersControl.Overlay checked name="Selection">
