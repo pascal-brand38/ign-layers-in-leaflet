@@ -128,43 +128,13 @@ function App() {
   }
 
   const center = [ 46.3428331, 2.5667412 ]
-  const urlMap = getUrl(selectedLayer)
+  const urlSelected = getUrl(selectedLayer)
 
 
   const url = {
-    // https://geoservices.ign.fr/documentation/services/services-deprecies/affichage-wmts/leaflet-et-wmts
-    // https://data.geopf.fr/private/wms-r?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities&apikey=ign_scan_ws
-    // https://wxs.ign.fr/cartes/geoportail/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetCapabilities
-    ignPlan: "https://data.geopf.fr/wmts?" +
-      "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
-      "&STYLE=normal" +
-      "&TILEMATRIXSET=PM" +
-      "&FORMAT=image/png" +
-      "&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2" +
-      "&TILEMATRIX={z}" +
-      "&TILEROW={y}" +
-      "&TILECOL={x}",
-
-    ignSat: "https://data.geopf.fr/wmts?" +
-      "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
-      "&STYLE=normal" +
-      "&TILEMATRIXSET=PM" +
-      "&FORMAT=image/jpeg" +
-      "&LAYER=ORTHOIMAGERY.ORTHOPHOTOS" +
-      "&TILEMATRIX={z}" +
-      "&TILEROW={y}" +
-      "&TILECOL={x}",
-
-    ignAdministration: "https://data.geopf.fr/wmts?" +
-      "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
-      "&STYLE=normal" +
-      "&TILEMATRIXSET=PM" +
-      "&FORMAT=image/png" +
-      "&LAYER=ADMINEXPRESS-COG.LATEST" +
-      "&TILEMATRIX={z}" +
-      "&TILEROW={y}" +
-      "&TILECOL={x}",
-
+    ignSat: getUrl(layerOf(layers, 'ORTHOIMAGERY.ORTHOPHOTOS')),
+    ignMap: getUrl(layerOf(layers, 'GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2')),
+    ignAdministration: getUrl(layerOf(layers, 'ADMINEXPRESS-COG.LATEST')),
     openstreetmap: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
   }
 
@@ -208,16 +178,22 @@ function App() {
         <MapContainer whenReady={whenReadyHandler} style={{height: "100%", width: "100%"}} center={center}  zoom={6} scrollWheelZoom={true}  >
 
         <LayersControl position="bottomleft">
-          <LayersControl.BaseLayer checked name="Image satellite">
+          <LayersControl.BaseLayer checked name="Image satellite de l'IGN">
             <TileLayer
                   attribution={attribution}
                   url={url.ignSat}
               />
           </LayersControl.BaseLayer>
-          <LayersControl.BaseLayer name="Carte Ign">
+          <LayersControl.BaseLayer name="Carte IGN">
             <TileLayer
                 attribution={attribution}
-                url={url.ignPlan}
+                url={url.ignMap}
+            />
+          </LayersControl.BaseLayer>
+          <LayersControl.BaseLayer name="OpenStreetMap">
+            <TileLayer
+                attribution={attribution}
+                url={url.openstreetmap}
             />
           </LayersControl.BaseLayer>
 
@@ -229,10 +205,10 @@ function App() {
             />
           </LayersControl.Overlay>
           <LayersControl.Overlay checked name="Selection">
-            { (urlMap !== undefined) &&
+            { (urlSelected !== undefined) &&
                 <TileLayer
                     attribution={attribution}
-                    url={urlMap}
+                    url={urlSelected}
                 />
             }
           </LayersControl.Overlay>
@@ -251,23 +227,13 @@ function App() {
       </div>
 
       <div className='cell-code'>
-      className='cell-code'
+        className='cell-code'
       </div>
 
       <div className='cell-layer-description'>
         <LayerInfo selectedLayer={selectedLayer} />
       </div>
 
-      {/* <div>
-        <div className="layer-list">
-          <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-          <LayerList layers={layers} setSelectedLayer={setSelectedLayer} searchTerm={searchTerm} />
-        </div>
-        <div className="layer-list">
-          <LayerInfo selectedLayer={selectedLayer} />
-        </div>
-      </div>
- */}
     </div>
     </>
   )
