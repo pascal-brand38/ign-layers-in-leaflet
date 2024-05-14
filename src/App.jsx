@@ -3,27 +3,12 @@
 
 import { useState, useRef, useEffect } from 'react'
 import './App.css'
-import { XMLParser, XMLBuilder, XMLValidator} from 'fast-xml-parser'
 import Map from './components/Map'
 import LayerInfo from './components/LayerInfo'
 import LayersList from './components/LayersList'
 import Search from './components/Search'
 import Code from './components/Code'
-
-// TODO: check the following
-//     https://geoservices.ign.fr/bascule-vers-la-geoplateforme
-//   to check for all services
-async function fetchCapabilities()  {
-  const x = await fetch('https://data.geopf.fr/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetCapabilities')
-  const XMLdata = await x.text()
-  const parser = new XMLParser();
-  let jObj = parser.parse(XMLdata);
-
-  console.log(jObj)
-
-  return jObj
-}
-
+import layerUtils from './hooks/layerUtils'
 
 function App() {
   // from https://stackoverflow.com/questions/64665827/react-leaflet-center-attribute-does-not-change-when-the-center-state-changes
@@ -40,13 +25,7 @@ function App() {
   const [ searchTerm, setSearchTerm ] = useState('');
 
   useEffect(() => {
-    const asyncFunc = async () => {
-      const capabilities = await fetchCapabilities()
-      setLayers(capabilities.Capabilities.Contents.Layer)
-      // setSelectedLayer(layerOf(capabilities.Capabilities.Contents.Layer, 'ORTHOIMAGERY.ORTHOPHOTOS'))
-    }
-
-    asyncFunc();
+    layerUtils.fetchLayers(setLayers)
   }, [])
 
 
