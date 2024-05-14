@@ -1,17 +1,20 @@
+// Copyright (c) Pascal Brand
+// MIT License
+
 import { useState, useRef, useEffect } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
-import { MapContainer, TileLayer, LayersControl, LayerGroup, Circle, Polyline, Marker, Popup, Tooltip, useMapEvents, useMap } from 'react-leaflet'
-// import 'leaflet/dist/leaflet.css';
-//import fs from 'fs'
-import "leaflet/dist/leaflet.css";
 import { XMLParser, XMLBuilder, XMLValidator} from 'fast-xml-parser'
+import Map from './components/Map'
+import LayerInfo from './components/LayerInfo'
+import LayersList from './components/LayersList'
+import Search from './components/Search'
+import Code from './components/Code'
 
-const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | Pascal Brand'
-
+// TODO: check the following
+//     https://geoservices.ign.fr/bascule-vers-la-geoplateforme
+//   to check for all services
 async function fetchCapabilities()  {
-  const x = await fetch('https://wxs.ign.fr/cartes/geoportail/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetCapabilities')
+  const x = await fetch('https://data.geopf.fr/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetCapabilities')
   const XMLdata = await x.text()
   const parser = new XMLParser();
   let jObj = parser.parse(XMLdata);
@@ -19,82 +22,6 @@ async function fetchCapabilities()  {
   console.log(jObj)
 
   return jObj
-}
-
-function LayerList({layers, setSelectedLayer, searchTerm}) {
-  const term = searchTerm
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")     // remove accent that may be confused
-    .toLowerCase()
-
-  const inSearch = (layer, term) =>
-    layer['ows:Title'].replace(/[\u0300-\u036f]/g, "").toLowerCase().includes(term)
-    || layer['ows:Abstract'].replace(/[\u0300-\u036f]/g, "").toLowerCase().includes(term)
-    || layer['ows:Identifier'].replace(/[\u0300-\u036f]/g, "").toLowerCase().includes(term)
-
-
-  return (
-    <div>
-    {
-      layers.map((layer, index) => {
-        if (inSearch(layer, term)) {
-          return (
-            <div>
-              <button key={index} onClick={()=>setSelectedLayer(layer)} /* onMouseOver={()=>setHoverTrack(index)}*/>
-                { layer['ows:Identifier'] }
-              </button>
-            </div>
-          )
-        }
-      })
-    }
-    </div>
-  )
-}
-
-function LayerInfo({selectedLayer}) {
-  if (selectedLayer) {
-    return (
-      <>
-        <div>
-          {getUrl(selectedLayer)}
-        </div>
-        <div>
-          { JSON.stringify(selectedLayer) }
-        </div>
-      </>
-    )
-  }
-}
-
-function getUrl(selectedLayer) {
-  if (selectedLayer === undefined) {
-    return undefined
-  }
-  return "https://data.geopf.fr/wmts?" +
-    "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
-    "&STYLE=" + selectedLayer.Style['ows:Identifier'] +
-    "&TILEMATRIXSET=" + selectedLayer.TileMatrixSetLink.TileMatrixSet +
-    "&FORMAT=" + selectedLayer.Format +
-    "&LAYER=" + selectedLayer['ows:Identifier'] +
-    "&TILEMATRIX={z}" +
-    "&TILEROW={y}" +
-    "&TILECOL={x}"
-}
-
-function layerOf(layers, identifier) {
-  const index = layers.findIndex(l => l['ows:Identifier']===identifier)
-  return layers[index]
-}
-
-function SearchBar({searchTerm, setSearchTerm}) {
-  const handleChange = (event) => {
-    setSearchTerm(event.target.value);
-  }
-
-
-  return (
-      <input type="text" value={searchTerm} onChange={handleChange} />
-  );
 }
 
 
@@ -127,107 +54,23 @@ function App() {
     return <></>
   }
 
-  const center = [ 46.3428331, 2.5667412 ]
-  const urlSelected = getUrl(selectedLayer)
-
-
-  const url = {
-    ignSat: getUrl(layerOf(layers, 'ORTHOIMAGERY.ORTHOPHOTOS')),
-    ignMap: getUrl(layerOf(layers, 'GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2')),
-    ignAdministration: getUrl(layerOf(layers, 'ADMINEXPRESS-COG.LATEST')),
-    openstreetmap: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-  }
-
-  const baseLayerChange = event => {
-    console.log('baseLayerChange event', event);
-  }
-  const overlayChange = event => {
-    console.log('overlayChange event', event);
-  }
-
-  const consoleUrl = (layers) => {
-    console.log('---------------------------------')
-    Object.keys(layers).forEach(key => console.log(layers[key]._url))
-    console.log('---------------------------------')
-  }
-
-
-
-  const whenReadyHandler = event => {
-    // cf events at https://leafletjs.com/reference.html#map-event
-    const { target } = event;
-    //target.on('baselayerchange', baseLayerChange);
-    // target.on('layeradd', overlayChange);
-    target.on('layeradd', (event) => consoleUrl( event.target._layers));
-    target.on('baselayerchange', (event) => consoleUrl( event.target._layers));
-    target.on('overlayadd', (event) => consoleUrl( event.target._layers));
-    target.on('overlayremove', (event) => consoleUrl( event.target._layers));
-
-    // event.target._layers ==> all keys which are int
-
-    // console.log('PASCAL')
-    // console.log(event)
-    // console.log('END PASCAL')
-  }
-
-
   return (
     <>
     <div className="main-grid">
       <div className="cell-map">
-        <MapContainer whenReady={whenReadyHandler} style={{height: "100%", width: "100%"}} center={center}  zoom={6} scrollWheelZoom={true}  >
-
-        <LayersControl position="bottomleft">
-          <LayersControl.BaseLayer checked name="Image satellite de l'IGN">
-            <TileLayer
-                  attribution={attribution}
-                  url={url.ignSat}
-              />
-          </LayersControl.BaseLayer>
-          <LayersControl.BaseLayer name="Carte IGN">
-            <TileLayer
-                attribution={attribution}
-                url={url.ignMap}
-            />
-          </LayersControl.BaseLayer>
-          <LayersControl.BaseLayer name="OpenStreetMap">
-            <TileLayer
-                attribution={attribution}
-                url={url.openstreetmap}
-            />
-          </LayersControl.BaseLayer>
-
-
-          <LayersControl.Overlay checked name="Limite Administrative">
-            <TileLayer
-                attribution={attribution}
-                url={url.ignAdministration}
-            />
-          </LayersControl.Overlay>
-          <LayersControl.Overlay checked name="Selection">
-            { (urlSelected !== undefined) &&
-                <TileLayer
-                    attribution={attribution}
-                    url={urlSelected}
-                />
-            }
-          </LayersControl.Overlay>
-        </LayersControl>
-
-
-        </MapContainer>
+        <Map layers={layers} selectedLayer={selectedLayer} />
       </div>
 
       <div className='cell-search'>
-        <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+        <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       </div>
 
       <div className='cell-layers'>
-        <LayerList layers={layers} setSelectedLayer={setSelectedLayer} searchTerm={searchTerm} />
+        <LayersList layers={layers} setSelectedLayer={setSelectedLayer} searchTerm={searchTerm} />
       </div>
 
       <div className='cell-code'>
-        className='cell-code'
+        <Code />
       </div>
 
       <div className='cell-layer-description'>
