@@ -10,7 +10,7 @@ import layerUtils from '../hooks/layerUtils'
 // TODO: not always openstreetmap!
 const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | Pascal Brand'
 
-function Map({ layers, selectedLayer }) {
+function Map({ layers, selectedLayer, setUrls }) {
   // from https://stackoverflow.com/questions/64665827/react-leaflet-center-attribute-does-not-change-when-the-center-state-changes
   // to update center
 
@@ -39,23 +39,21 @@ function Map({ layers, selectedLayer }) {
     console.log('overlayChange event', event);
   }
 
-  const consoleUrl = (layers) => {
-    console.log('---------------------------------')
-    Object.keys(layers).forEach(key => console.log(layers[key]._url))
-    console.log('---------------------------------')
+  const newEvent = (layers) => {
+    let urls = []
+    Object.keys(layers).forEach(key => urls.push(layers[key]._url))
+    setUrls(urls)
   }
-
-
 
   const whenReadyHandler = event => {
     // cf events at https://leafletjs.com/reference.html#map-event
     const { target } = event;
     //target.on('baselayerchange', baseLayerChange);
     // target.on('layeradd', overlayChange);
-    target.on('layeradd', (event) => consoleUrl(event.target._layers));
-    target.on('baselayerchange', (event) => consoleUrl(event.target._layers));
-    target.on('overlayadd', (event) => consoleUrl(event.target._layers));
-    target.on('overlayremove', (event) => consoleUrl(event.target._layers));
+    target.on('layeradd', (event) => newEvent(event.target._layers));
+    target.on('baselayerchange', (event) => newEvent(event.target._layers));
+    target.on('overlayadd', (event) => newEvent(event.target._layers));
+    target.on('overlayremove', (event) => newEvent(event.target._layers));
 
     // event.target._layers ==> all keys which are int
 

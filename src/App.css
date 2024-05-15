@@ -1,6 +1,26 @@
 #root {
 }
 
+h1 {
+  font-size: 1.9rem;
+  margin: 0;
+  margin-left: 0.5rem;
+}
+
+.code {
+  margin: 0;
+  margin-left: 2rem;
+}
+
+.layer-info-title {
+  margin-left: 2rem;
+  font-size: 1.2rem;
+}
+.layer-info-abstract {
+  margin-left: 2rem;
+}
+
+
 .main-grid {
   width: 100%;
   height: 100vh;
@@ -11,9 +31,9 @@
   /* "map layers" min-content
   "code layer-description" 1fr
       / min-content 1fr; */
-      "map search" min-content      /* height = min-content to fit the search */
-      "map layers" 3fr              /* height of the map */
-      "code layer-description"  1fr / 3fr 1fr;  /* height of the code = 1fr   -   width of the grid is 3fr 1fr */
+      "map map map search" min-content    /* height = min-content to fit the search */
+      "map map map layers" 3fr            /* height of the map */
+      "code code layer-description layer-description"  1fr / 1fr 1fr 1fr 1fr;  /* height of the code = 1fr  -  width of the grid is 1fr 1fr 1fr 1fr */
 }
 
 .cell-map {
@@ -29,24 +49,17 @@
   grid-area: layers;
   background-color: limegreen;
   overflow: auto;   /* required for resize */
+  border: 2px black solid;
 }
 
 .cell-code {
   grid-area: code;
-  background-color: blue;
   overflow: auto;   /* required for resize */
+  border: 2px black solid;
 }
 
 .cell-layer-description {
   grid-area: layer-description;
-  background-color: lightgreen;
   overflow: auto;   /* required for resize */
-}
-
-
-
-.layer-list {
-  height: 50vh;
-  background-color: gray;
-  overflow-y: scroll;
+  border: 2px black solid;
 }

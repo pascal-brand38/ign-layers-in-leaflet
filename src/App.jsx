@@ -23,6 +23,7 @@ function App() {
   const [ layers, setLayers ] = useState([])    // all the layers. Loaded in useEffect
   const [ selectedLayer, setSelectedLayer ] = useState(undefined)
   const [ searchTerm, setSearchTerm ] = useState('');
+  const [ urls, setUrls ] = useState([]);
 
   useEffect(() => {
     layerUtils.fetchLayers(setLayers)
@@ -37,7 +38,7 @@ function App() {
     <>
     <div className="main-grid">
       <div className="cell-map">
-        <Map layers={layers} selectedLayer={selectedLayer} />
+        <Map layers={layers} selectedLayer={selectedLayer} setUrls={setUrls} />
       </div>
 
       <div className='cell-search'>
@@ -49,7 +50,7 @@ function App() {
       </div>
 
       <div className='cell-code'>
-        <Code />
+        <Code urls={urls} />
       </div>
 
       <div className='cell-layer-description'>

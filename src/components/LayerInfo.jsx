@@ -7,12 +7,13 @@ function LayerInfo({ selectedLayer }) {
   if (selectedLayer) {
     return (
       <>
-        <div>
-          {layerUtils.getUrlFromLayer(selectedLayer)}
-        </div>
-        <div>
-          {JSON.stringify(selectedLayer)}
-        </div>
+      <h1> { selectedLayer['ows:Identifier']} </h1>
+      <div className='layer-info-title'>
+        { selectedLayer['ows:Title'] }
+      </div>
+      <div className='layer-info-abstract'>
+        { selectedLayer['ows:Abstract'] }
+      </div>
       </>
     )
   }

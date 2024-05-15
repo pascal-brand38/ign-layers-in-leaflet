@@ -18,8 +18,8 @@ function LayersList({layers, setSelectedLayer, searchTerm}) {
       layers.map((layer, index) => {
         if (inSearch(layer, term)) {
           return (
-            <div>
-              <button key={index} onClick={()=>setSelectedLayer(layer)} /* onMouseOver={()=>setHoverTrack(index)}*/>
+            <div key={index}>
+              <button onClick={()=>setSelectedLayer(layer)} /* onMouseOver={()=>setHoverTrack(index)}*/>
                 { layer['ows:Identifier'] }
               </button>
             </div>

@@ -1,10 +1,19 @@
 // Copyright (c) Pascal Brand
 // MIT License
 
-function Code() {
+function Code({urls}) {
   return (
     <>
-      This will be the code
+    <h1> URLs in Leaflet</h1>
+    {
+      urls.map((url, index) => {
+        return (
+          <pre className='code'>
+              {url}
+          </pre>
+        )
+      })
+    }
     </>
   );
 }
