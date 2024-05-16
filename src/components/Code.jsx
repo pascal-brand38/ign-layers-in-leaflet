@@ -8,7 +8,7 @@ function Code({urls}) {
     {
       urls.map((url, index) => {
         return (
-          <pre className='code'>
+          <pre key={index} className='code'>
               {url}
           </pre>
         )
