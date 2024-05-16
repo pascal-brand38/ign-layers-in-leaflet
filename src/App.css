@@ -19,6 +19,17 @@ h1 {
   margin: 0 2rem;
 }
 
+.search-bar {
+  display: flex;
+  margin: .5rem calc(1rem + 18px) .5rem 1rem;   /* 18px for the scroll bar of overflow of layers list */
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-bar__input {
+  flex-grow: 1;
+}
 
 .main-grid {
   width: 100%;
