@@ -41,12 +41,10 @@ h1 {
 
 .cell-search {
   grid-area: search;
-  background-color: lightcoral;
 }
 
 .cell-layers {
   grid-area: layers;
-  background-color: limegreen;
   overflow: auto;   /* required for resize */
   border: 2px black solid;
 }

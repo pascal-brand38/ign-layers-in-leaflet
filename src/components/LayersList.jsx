@@ -19,8 +19,11 @@ function LayersList({layers, setSelectedLayer, searchTerm}) {
         if (inSearch(layer, term)) {
           return (
             <div key={index}>
-              <button onClick={()=>setSelectedLayer(layer)} /* onMouseOver={()=>setHoverTrack(index)}*/>
+              <button className='button-layers-list' onClick={()=>setSelectedLayer(layer)} /* onMouseOver={()=>setHoverTrack(index)}*/>
                 { layer['ows:Identifier'] }
+                <div>
+                { layer['ows:Title'] }
+                </div>
               </button>
             </div>
           )
