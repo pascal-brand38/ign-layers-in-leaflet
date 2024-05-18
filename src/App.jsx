@@ -1,7 +1,7 @@
 // Copyright (c) Pascal Brand
 // MIT License
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 import Map from './components/Map'
 import LayerInfo from './components/LayerInfo'
@@ -23,7 +23,7 @@ function App() {
   const [ layers, setLayers ] = useState([])    // all the layers. Loaded in useEffect
   const [ selectedLayer, setSelectedLayer ] = useState(undefined)
   const [ searchTerm, setSearchTerm ] = useState('');
-  const [ urls, setUrls ] = useState([]);
+  const [ displayedLayers, setDisplayedLayers ] = useState({});
 
   useEffect(() => {
     layerUtils.fetchLayers(setLayers)
@@ -38,7 +38,7 @@ function App() {
     <>
     <div className="main-grid">
       <div className="cell-map">
-        <Map layers={layers} selectedLayer={selectedLayer} setUrls={setUrls} />
+        <Map layers={layers} selectedLayer={selectedLayer} setDisplayedLayers={setDisplayedLayers} />
       </div>
 
       <div className='cell-search'>
@@ -50,7 +50,7 @@ function App() {
       </div>
 
       <div className='cell-code'>
-        <Code urls={urls} />
+        <Code selectedLayer={selectedLayer} displayedLayers={displayedLayers} />
       </div>
 
       <div className='cell-layer-description'>
@@ -70,5 +70,3 @@ export default App
 //
 // - show legends, as for example
 //   https://www.geoportail.gouv.fr/depot/layers/LANDUSE.AGRICULTURE2014/legendes/LANDUSE.AGRICULTURE2014-legend.png
-// - search box with better shape
-// - print information in better format

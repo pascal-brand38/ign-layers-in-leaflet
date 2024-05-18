@@ -10,7 +10,7 @@ import layerUtils from '../hooks/layerUtils'
 // TODO: not always openstreetmap!
 const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | Pascal Brand'
 
-function Map({ layers, selectedLayer, setUrls }) {
+function Map({ layers, selectedLayer, setDisplayedLayers }) {
   // from https://stackoverflow.com/questions/64665827/react-leaflet-center-attribute-does-not-change-when-the-center-state-changes
   // to update center
 
@@ -32,58 +32,36 @@ function Map({ layers, selectedLayer, setUrls }) {
     openstreetmap: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
   }
 
-  const baseLayerChange = event => {
-    console.log('baseLayerChange event', event);
-  }
-  const overlayChange = event => {
-    console.log('overlayChange event', event);
-  }
-
-  const newEvent = (layers) => {
-    let urls = []
-    Object.keys(layers).forEach(key => urls.push(layers[key]._url))
-    setUrls(urls)
-  }
-
-  const whenReadyHandler = event => {
-    // cf events at https://leafletjs.com/reference.html#map-event
-    const { target } = event;
-    //target.on('baselayerchange', baseLayerChange);
-    // target.on('layeradd', overlayChange);
-    target.on('layeradd', (event) => newEvent(event.target._layers));
-    target.on('baselayerchange', (event) => newEvent(event.target._layers));
-    target.on('overlayadd', (event) => newEvent(event.target._layers));
-    target.on('overlayremove', (event) => newEvent(event.target._layers));
-
-    // event.target._layers ==> all keys which are int
-
-    // console.log('PASCAL')
-    // console.log(event)
-    // console.log('END PASCAL')
-  }
-
+  const updateDisplayedLayers = (name, url) => setDisplayedLayers(prev => {
+    let result = { ...prev }
+    result[name] = url
+    return result
+  })
 
   return (
-    <MapContainer whenReady={whenReadyHandler} style={{ height: "100%", width: "100%" }} center={center} zoom={6} scrollWheelZoom={true}  >
+    <MapContainer style={{ height: "100%", width: "100%" }} center={center} zoom={6} scrollWheelZoom={true}  >
 
       <LayersControl position="bottomleft">
         <LayersControl.BaseLayer checked name="Image satellite de l'IGN">
           <TileLayer
             attribution={attribution}
             url={url.ignSat}
+            eventHandlers={{add: (e)=>updateDisplayedLayers('baseLayer', e.target._url),}}
           />
         </LayersControl.BaseLayer>
         <LayersControl.BaseLayer name="Carte IGN">
           <TileLayer
             attribution={attribution}
             url={url.ignMap}
+            eventHandlers={{add: (e)=>updateDisplayedLayers('baseLayer', e.target._url),}}
           />
         </LayersControl.BaseLayer>
         <LayersControl.BaseLayer name="OpenStreetMap">
           <TileLayer
             attribution={attribution}
             url={url.openstreetmap}
-          />
+            eventHandlers={{add: (e)=>updateDisplayedLayers('baseLayer', e.target._url),}}
+            />
         </LayersControl.BaseLayer>
 
 
@@ -91,18 +69,29 @@ function Map({ layers, selectedLayer, setUrls }) {
           <TileLayer
             attribution={attribution}
             url={url.ignAdministration}
-          />
+            eventHandlers={
+              {
+                add: (e)=>updateDisplayedLayers('adminLayer', e.target._url),
+                remove: (e)=>updateDisplayedLayers('adminLayer', undefined),
+              }
+            }
+        />
         </LayersControl.Overlay>
         <LayersControl.Overlay checked name="Selection">
           {(urlSelected !== undefined) &&
             <TileLayer
               attribution={attribution}
               url={urlSelected}
+              eventHandlers={
+                {
+                  add: (e)=>updateDisplayedLayers('selectedLayer', e.target._url),
+                  remove: (e)=>updateDisplayedLayers('selectedLayer', undefined),
+                }
+              }
             />
           }
         </LayersControl.Overlay>
       </LayersControl>
-
 
     </MapContainer>
   )
