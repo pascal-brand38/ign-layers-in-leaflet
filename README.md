@@ -1,8 +1,8 @@
-# React + Vite
+# Showing IGN layers with leaflet
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This website proposes all layers provided by IGN.
+When displayed, the bottom-left part of the website shows all urls used in the displayed.
 
-Currently, two official plugins are available:
+This website is available as https://pascal-brand38.github.io/ign-layers-in-leaflet/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+![](https://raw.githubusercontent.com/pascal-brand38/ign-layers-in-leaflet/main/readme.png)
