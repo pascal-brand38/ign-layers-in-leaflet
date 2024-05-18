@@ -8,7 +8,10 @@ import { MapContainer, TileLayer, LayersControl, LayerGroup, Circle, Polyline, M
 import layerUtils from '../hooks/layerUtils'
 
 // TODO: not always openstreetmap!
-const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | Pascal Brand'
+const attributionIGN = '&copy; <a href="https://www.ign.fr/">Institut géographique national</a>'
+const attributionOpenstreetmap = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+const attributionPB = '<a href="https://www.github.com/pascal-brand38">Pascal Brand</a>'
+const attribution = attributionIGN + ' | ' + attributionOpenstreetmap + ' | ' + attributionPB
 
 function Map({ layers, selectedLayer, setDisplayedLayers }) {
   // from https://stackoverflow.com/questions/64665827/react-leaflet-center-attribute-does-not-change-when-the-center-state-changes
@@ -39,7 +42,7 @@ function Map({ layers, selectedLayer, setDisplayedLayers }) {
   })
 
   return (
-    <MapContainer style={{ height: "100%", width: "100%" }} center={center} zoom={6} scrollWheelZoom={true}  >
+    <MapContainer style={{ height: "100%", width: "100%" }} center={center} zoom={6} scrollWheelZoom={true} attributionControl:true >
 
       <LayersControl position="bottomleft">
         <LayersControl.BaseLayer checked name="Image satellite de l'IGN">

@@ -26,6 +26,10 @@ function findLayer(layers, identifier) {
 // TODO: check the following
 //     https://geoservices.ign.fr/bascule-vers-la-geoplateforme
 //   to check for all services
+
+// TODO: check https://geoservices.ign.fr/services-web-issus-des-scans-ign
+//   and https://geoservices.ign.fr/recherche?search=Scan25
+//     for SCAN25 (include track path (?))
 async function fetchLayers(setLayers)  {
   const f = async (url) => {
     const x = await fetch(url)
