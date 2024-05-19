@@ -39,23 +39,23 @@ function AddBaseLayers({setDisplayedLayers}) {
     {
       url: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
       name: 'Google satellite',
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      attribution: 'Map data &copy; Google',
     },
     {
       url: 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
       name: 'Google Maps',
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      attribution: 'Map data &copy; Google',
     },
   ]
 
   return baseLayers.map((layer, index) =>
     <LayersControl.BaseLayer checked={layer.checked===true} key={index} name={layer.name}>
-            <TileLayer
-              attribution={layer.attribution}
-              url={layer.url}
-              eventHandlers={{add: (e) => updateDisplayedLayers('baseLayer', e.target._url),}}
-            />
-          </LayersControl.BaseLayer>
+      <TileLayer
+        attribution={layer.attribution}
+        url={layer.url}
+        eventHandlers={{add: (e) => updateDisplayedLayers('baseLayer', e.target._url),}}
+      />
+    </LayersControl.BaseLayer>
   )
 }
 
