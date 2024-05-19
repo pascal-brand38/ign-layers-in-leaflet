@@ -33,6 +33,12 @@ function Map({ layers, selectedLayer, setDisplayedLayers }) {
     ignMap: layerUtils.getUrlFromLayer(layerUtils.findLayer(layers, 'GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2')),
     ignAdministration: layerUtils.getUrlFromLayer(layerUtils.findLayer(layers, 'ADMINEXPRESS-COG.LATEST')),
     openstreetmap: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+
+    googleSat: "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",              // subdomains={['mt1','mt2','mt3']}
+    googleMap: "https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
+
+    openTopoMap: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+
   }
 
   const updateDisplayedLayers = (name, url) => setDisplayedLayers(prev => {
@@ -40,6 +46,9 @@ function Map({ layers, selectedLayer, setDisplayedLayers }) {
     result[name] = url
     return result
   })
+
+  // many maps at
+  // https://github.com/NelsonMinar/multimap/blob/master/basemaps.js
 
   return (
     <MapContainer style={{ height: "100%", width: "100%" }} center={center} zoom={6} scrollWheelZoom={true} attributionControl:true >
@@ -49,6 +58,7 @@ function Map({ layers, selectedLayer, setDisplayedLayers }) {
           <TileLayer
             attribution={attribution}
             url={url.ignSat}
+
             eventHandlers={{add: (e)=>updateDisplayedLayers('baseLayer', e.target._url),}}
           />
         </LayersControl.BaseLayer>
@@ -66,7 +76,39 @@ function Map({ layers, selectedLayer, setDisplayedLayers }) {
             eventHandlers={{add: (e)=>updateDisplayedLayers('baseLayer', e.target._url),}}
             />
         </LayersControl.BaseLayer>
+        <LayersControl.BaseLayer name="Google satellite">
+          <TileLayer
+              attribution={attribution}
+              url={url.googleSat}
+              eventHandlers={{add: (e)=>updateDisplayedLayers('baseLayer', e.target._url),}}
+            />
+        </LayersControl.BaseLayer>
+        <LayersControl.BaseLayer name="Google Map">
+          <TileLayer
+              attribution={attribution}
+              url={url.googleMap}
+              eventHandlers={{add: (e)=>updateDisplayedLayers('baseLayer', e.target._url),}}
+            />
+        </LayersControl.BaseLayer>
+        <LayersControl.BaseLayer name="OpenTopoMap">
+          <TileLayer
+              attribution={attribution}
+              url={url.openTopoMap}
+              eventHandlers={{add: (e)=>updateDisplayedLayers('baseLayer', e.target._url),}}
+            />
+        </LayersControl.BaseLayer>
 
+{/*
+        <LayersControl.BaseLayer name="Experiment">
+          <TileLayer
+              attribution={attribution}
+              url={'https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.{ext}'}
+              subdomains={["a", "b", "c", "d"]}
+              ext='png'
+              eventHandlers={{add: (e)=>updateDisplayedLayers('baseLayer', e.target._url),}}
+            />
+        </LayersControl.BaseLayer>
+ */}
 
         <LayersControl.Overlay checked name="Limite Administrative">
           <TileLayer
