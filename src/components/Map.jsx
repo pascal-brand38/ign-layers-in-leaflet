@@ -7,11 +7,100 @@ import { MapContainer, TileLayer, LayersControl, LayerGroup, Circle, Polyline, M
 
 import layerUtils from '../hooks/layerUtils'
 
-// TODO: not always openstreetmap!
-const attributionIGN = '&copy; <a href="https://www.ign.fr/">Institut géographique national</a>'
-const attributionOpenstreetmap = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-const attributionPB = '<a href="https://www.github.com/pascal-brand38">Pascal Brand</a>'
-const attribution = attributionIGN + ' | ' + attributionOpenstreetmap + ' | ' + attributionPB
+
+function AddBaseLayers({setDisplayedLayers}) {
+  const updateDisplayedLayers = (name, url) => setDisplayedLayers(prev => {
+    let result = { ...prev }
+    result[name] = url
+    return result
+  })
+  const baseLayers = [
+    {
+      url: "https://data.geopf.fr/wmts?&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/jpeg&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}",
+      name: "Image satellite de l'IGN",
+      attribution: '&copy; <a href="https://www.ign.fr/">IGN</a>',
+      checked: true,
+    },
+    {
+      url: "https://data.geopf.fr/wmts?&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/png&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}",
+      name: "Carte IGN",
+      attribution: '&copy; <a href="https://www.ign.fr/">IGN</a>',
+    },
+    {
+      url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      name: 'OpenStreetMap',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    },
+    {
+      url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+      name: 'openTopoMap',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    },
+    {
+      url: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+      name: 'Google satellite',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    },
+    {
+      url: 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+      name: 'Google Maps',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    },
+  ]
+
+  return baseLayers.map((layer, index) =>
+    <LayersControl.BaseLayer checked={layer.checked===true} key={index} name={layer.name}>
+            <TileLayer
+              attribution={layer.attribution}
+              url={layer.url}
+              eventHandlers={{add: (e) => updateDisplayedLayers('baseLayer', e.target._url),}}
+            />
+          </LayersControl.BaseLayer>
+  )
+}
+
+function AddOverlayLayers({selectedLayer, setDisplayedLayers}) {
+  const updateDisplayedLayers = (name, url) => setDisplayedLayers(prev => {
+    let result = { ...prev }
+    result[name] = url
+    return result
+  })
+  const overlayLayers = [
+    {
+      url: "https://data.geopf.fr/wmts?&LAYER=ADMINEXPRESS-COG.LATEST&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/png&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}",
+      name: "Administration",
+      attribution: '&copy; <a href="https://www.ign.fr/">IGN</a>',
+      layerName: 'adminLayer',    // used in Code.jsx
+      checked: true,
+    },
+    {
+      url: layerUtils.getUrlFromLayer(selectedLayer),
+      name: "Selection",    // Selection is hard-coded in Code.jsx
+      layerName: 'selectedLayer',    // used in Code.jsx
+      checked: true,
+    },
+  ]
+
+  return overlayLayers.map((layer, index) => {
+    if (layer.url !== undefined) {
+      return (
+        <LayersControl.Overlay key={index}  checked name={layer.name}>
+          <TileLayer
+            attribution={layer.attribution}
+            url={layer.url}
+            eventHandlers={
+              {
+                add: (e) => updateDisplayedLayers(layer.layerName, e.target._url),
+                remove: (e) => updateDisplayedLayers(layer.layerName, undefined),
+              }
+            }
+          />
+        </LayersControl.Overlay>
+      )
+    }
+  })
+}
+
 
 function Map({ layers, selectedLayer, setDisplayedLayers }) {
   // from https://stackoverflow.com/questions/64665827/react-leaflet-center-attribute-does-not-change-when-the-center-state-changes
@@ -25,117 +114,16 @@ function Map({ layers, selectedLayer, setDisplayedLayers }) {
 
 
   const center = [46.3428331, 2.5667412]
-  const urlSelected = layerUtils.getUrlFromLayer(selectedLayer)
-
-
-  const url = {
-    ignSat: layerUtils.getUrlFromLayer(layerUtils.findLayer(layers, 'ORTHOIMAGERY.ORTHOPHOTOS')),
-    ignMap: layerUtils.getUrlFromLayer(layerUtils.findLayer(layers, 'GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2')),
-    ignAdministration: layerUtils.getUrlFromLayer(layerUtils.findLayer(layers, 'ADMINEXPRESS-COG.LATEST')),
-    openstreetmap: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-
-    googleSat: "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",              // subdomains={['mt1','mt2','mt3']}
-    googleMap: "https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
-
-    openTopoMap: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-
-  }
-
-  const updateDisplayedLayers = (name, url) => setDisplayedLayers(prev => {
-    let result = { ...prev }
-    result[name] = url
-    return result
-  })
 
   // many maps at
   // https://github.com/NelsonMinar/multimap/blob/master/basemaps.js
 
   return (
-    <MapContainer style={{ height: "100%", width: "100%" }} center={center} zoom={6} scrollWheelZoom={true} attributionControl:true >
+    <MapContainer style={{ height: "100%", width: "100%" }} center={center} zoom={6} scrollWheelZoom={true} >
 
       <LayersControl position="bottomleft">
-        <LayersControl.BaseLayer checked name="Image satellite de l'IGN">
-          <TileLayer
-            attribution={attribution}
-            url={url.ignSat}
-
-            eventHandlers={{add: (e)=>updateDisplayedLayers('baseLayer', e.target._url),}}
-          />
-        </LayersControl.BaseLayer>
-        <LayersControl.BaseLayer name="Carte IGN">
-          <TileLayer
-            attribution={attribution}
-            url={url.ignMap}
-            eventHandlers={{add: (e)=>updateDisplayedLayers('baseLayer', e.target._url),}}
-          />
-        </LayersControl.BaseLayer>
-        <LayersControl.BaseLayer name="OpenStreetMap">
-          <TileLayer
-            attribution={attribution}
-            url={url.openstreetmap}
-            eventHandlers={{add: (e)=>updateDisplayedLayers('baseLayer', e.target._url),}}
-            />
-        </LayersControl.BaseLayer>
-        <LayersControl.BaseLayer name="Google satellite">
-          <TileLayer
-              attribution={attribution}
-              url={url.googleSat}
-              eventHandlers={{add: (e)=>updateDisplayedLayers('baseLayer', e.target._url),}}
-            />
-        </LayersControl.BaseLayer>
-        <LayersControl.BaseLayer name="Google Map">
-          <TileLayer
-              attribution={attribution}
-              url={url.googleMap}
-              eventHandlers={{add: (e)=>updateDisplayedLayers('baseLayer', e.target._url),}}
-            />
-        </LayersControl.BaseLayer>
-        <LayersControl.BaseLayer name="OpenTopoMap">
-          <TileLayer
-              attribution={attribution}
-              url={url.openTopoMap}
-              eventHandlers={{add: (e)=>updateDisplayedLayers('baseLayer', e.target._url),}}
-            />
-        </LayersControl.BaseLayer>
-
-{/*
-        <LayersControl.BaseLayer name="Experiment">
-          <TileLayer
-              attribution={attribution}
-              url={'https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.{ext}'}
-              subdomains={["a", "b", "c", "d"]}
-              ext='png'
-              eventHandlers={{add: (e)=>updateDisplayedLayers('baseLayer', e.target._url),}}
-            />
-        </LayersControl.BaseLayer>
- */}
-
-        <LayersControl.Overlay checked name="Limite Administrative">
-          <TileLayer
-            attribution={attribution}
-            url={url.ignAdministration}
-            eventHandlers={
-              {
-                add: (e)=>updateDisplayedLayers('adminLayer', e.target._url),
-                remove: (e)=>updateDisplayedLayers('adminLayer', undefined),
-              }
-            }
-        />
-        </LayersControl.Overlay>
-        <LayersControl.Overlay checked name="Selection">
-          {(urlSelected !== undefined) &&
-            <TileLayer
-              attribution={attribution}
-              url={urlSelected}
-              eventHandlers={
-                {
-                  add: (e)=>updateDisplayedLayers('selectedLayer', e.target._url),
-                  remove: (e)=>updateDisplayedLayers('selectedLayer', undefined),
-                }
-              }
-            />
-          }
-        </LayersControl.Overlay>
+        <AddBaseLayers setDisplayedLayers={setDisplayedLayers}/>
+        <AddOverlayLayers selectedLayer={selectedLayer} setDisplayedLayers={setDisplayedLayers}/>
       </LayersControl>
 
     </MapContainer>

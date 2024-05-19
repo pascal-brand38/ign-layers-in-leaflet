@@ -14,6 +14,7 @@ function oneLayer(url) {
 }
 
 function Code({ selectedLayer, displayedLayers }) {
+  // displayedLayers.Selection is hard-coded in Code.jsx
   return (
     <>
       <h1> URLs in Leaflet</h1>
