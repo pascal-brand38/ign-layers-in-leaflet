@@ -7,10 +7,13 @@ function getUrlFromLayer(selectedLayer) {
   if (selectedLayer === undefined) {
     return undefined
   }
+console.log(selectedLayer)
+  const style = selectedLayer.Style['ows:Identifier'] || selectedLayer.Style[0]['ows:Identifier']
+  //console.log(style)
   return "https://data.geopf.fr/wmts?" +
     "&LAYER=" + selectedLayer['ows:Identifier'] +
     "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
-    "&STYLE=" + selectedLayer.Style['ows:Identifier'] +
+    "&STYLE=" + style +
     "&TILEMATRIXSET=" + selectedLayer.TileMatrixSetLink.TileMatrixSet +
     "&FORMAT=" + selectedLayer.Format +
     "&TILEMATRIX={z}" +
