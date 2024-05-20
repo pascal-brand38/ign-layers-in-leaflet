@@ -53,6 +53,11 @@ function AddBaseLayers({setDisplayedLayers}) {
       name: 'Google Maps',
       attribution: 'Map data &copy; Google',
     },
+    {
+      url: 'https://tiles.stadiamaps.com/tiles/alidade_satellite/{z}/{x}/{y}{r}.jpg',
+      name: 'CNES Stadia Alidade Satellite',
+      attribution: '&copy; CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data) | &copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    },
   ]
 
   return baseLayers.map((layer, index) =>
