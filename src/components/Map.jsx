@@ -7,6 +7,7 @@ import { MapContainer, TileLayer, LayersControl, LayerGroup, Circle, Polyline, M
 
 import layerUtils from '../hooks/layerUtils'
 
+// https://leaflet-extras.github.io/leaflet-providers/preview/
 
 function AddBaseLayers({setDisplayedLayers}) {
   const updateDisplayedLayers = (name, url) => setDisplayedLayers(prev => {
@@ -17,14 +18,20 @@ function AddBaseLayers({setDisplayedLayers}) {
   const baseLayers = [
     {
       url: "https://data.geopf.fr/wmts?&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/jpeg&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}",
-      name: "Image satellite de l'IGN",
+      name: "IGN satellite",
       attribution: '&copy; <a href="https://www.ign.fr/">IGN</a>',
       checked: true,
     },
     {
       url: "https://data.geopf.fr/wmts?&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/png&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}",
-      name: "Carte IGN",
+      name: "IGN Carte",
       attribution: '&copy; <a href="https://www.ign.fr/">IGN</a>',
+    },
+    {
+      // Capabilities: https://data.geopf.fr/private/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetCapabilities&apikey=ign_scan_ws
+      url: "https://data.geopf.fr/private/wmts?&LAYER=GEOGRAPHICALGRIDSYSTEMS.MAPS.SCAN25TOUR&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/jpeg&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&apikey=ign_scan_ws",
+      name: 'IGN SCAN 25',
+      attribution: 'Map data &copy; Google',
     },
     {
       url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
