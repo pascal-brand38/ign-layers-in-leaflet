@@ -9,6 +9,7 @@ import LayersList from './components/LayersList'
 import Search from './components/Search'
 import Code from './components/Code'
 import layerUtils from './hooks/layerUtils'
+import Opacity from './components/Opacity'
 
 function App() {
   // from https://stackoverflow.com/questions/64665827/react-leaflet-center-attribute-does-not-change-when-the-center-state-changes
@@ -22,6 +23,7 @@ function App() {
 
   const [ layers, setLayers ] = useState([])    // all the layers. Loaded in useEffect
   const [ selectedLayer, setSelectedLayer ] = useState(undefined)
+  const [ opacity, setOpacity ] = useState(100);
   const [ searchTerm, setSearchTerm ] = useState('');
   const [ displayedLayers, setDisplayedLayers ] = useState({});
 
@@ -38,7 +40,11 @@ function App() {
     <>
     <div className="main-grid">
       <div className="cell-map">
-        <Map layers={layers} selectedLayer={selectedLayer} setDisplayedLayers={setDisplayedLayers} />
+        <Map selectedLayer={selectedLayer} setDisplayedLayers={setDisplayedLayers} opacity={opacity} />
+      </div>
+
+      <div className='cell-opacity'>
+        <Opacity opacity={opacity} setOpacity={setOpacity} />
       </div>
 
       <div className='cell-search'>

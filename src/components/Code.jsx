@@ -21,6 +21,22 @@ function Code({ selectedLayer, displayedLayers }) {
       { oneLayer(displayedLayers.baseLayer) }
       { oneLayer(displayedLayers.adminLayer) }
       { displayedLayers.selectedLayer && oneLayer(layerUtils.getUrlFromLayer(selectedLayer)) }
+
+      {/* <a href="https://www.compteurdevisite.com" title="compteur visiteur">
+        <img src="https://counter4.optistats.ovh/private/compteurdevisite.php?c=fym19ezrhntbb2efbfdq8sekmhrfn84c" border="0" title="compteur visiteur" alt="compteur visiteur"/>
+        </a> */}
+
+      <div id="sfcfym19ezrhntbb2efbfdq8sekmhrfn84c"></div>
+
+      <script
+        src="https://counter4.optistats.ovh/private/counter.js?c=fym19ezrhntbb2efbfdq8sekmhrfn84c&down=async" async></script>
+      <br/>
+      <a href="https://www.compteurdevisite.com">compteur visiteur</a>
+      <noscript><a href="https://www.compteurdevisite.com"
+          title="compteur visiteur">
+            <img
+            src="https://counter4.optistats.ovh/private/compteurdevisite.php?c=fym19ezrhntbb2efbfdq8sekmhrfn84c" border="0"
+            title="compteur visiteur" alt="compteur visiteur"/></a></noscript>
     </>
   );
 }

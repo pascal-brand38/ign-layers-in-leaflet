@@ -71,7 +71,7 @@ function AddBaseLayers({setDisplayedLayers}) {
   )
 }
 
-function AddOverlayLayers({selectedLayer, setDisplayedLayers}) {
+function AddOverlayLayers({selectedLayer, setDisplayedLayers, opacity}) {
   const updateDisplayedLayers = (name, url) => setDisplayedLayers(prev => {
     let result = { ...prev }
     result[name] = url
@@ -90,6 +90,7 @@ function AddOverlayLayers({selectedLayer, setDisplayedLayers}) {
       name: "Selection",    // Selection is hard-coded in Code.jsx
       layerName: 'selectedLayer',    // used in Code.jsx
       checked: true,
+      opacity: true,
     },
   ]
 
@@ -106,6 +107,7 @@ function AddOverlayLayers({selectedLayer, setDisplayedLayers}) {
                 remove: (e) => updateDisplayedLayers(layer.layerName, undefined),
               }
             }
+            opacity= { (layer.opacity) ? (opacity / 100.0) : 1 }
           />
         </LayersControl.Overlay>
       )
@@ -114,7 +116,7 @@ function AddOverlayLayers({selectedLayer, setDisplayedLayers}) {
 }
 
 
-function Map({ layers, selectedLayer, setDisplayedLayers }) {
+function Map({ selectedLayer, setDisplayedLayers, opacity }) {
   // from https://stackoverflow.com/questions/64665827/react-leaflet-center-attribute-does-not-change-when-the-center-state-changes
   // to update center
 
@@ -135,7 +137,7 @@ function Map({ layers, selectedLayer, setDisplayedLayers }) {
 
       <LayersControl position="bottomleft">
         <AddBaseLayers setDisplayedLayers={setDisplayedLayers}/>
-        <AddOverlayLayers selectedLayer={selectedLayer} setDisplayedLayers={setDisplayedLayers}/>
+        <AddOverlayLayers selectedLayer={selectedLayer} setDisplayedLayers={setDisplayedLayers} opacity={opacity} />
       </LayersControl>
 
     </MapContainer>
